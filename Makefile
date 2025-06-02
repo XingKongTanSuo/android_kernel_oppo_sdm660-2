@@ -1,7 +1,7 @@
 VERSION = 4
 PATCHLEVEL = 4
 SUBLEVEL = 153
-EXTRAVERSION =
+EXTRAVERSION = -Elysia×Raiden_Mei
 NAME = Blurry Fish Butt
 
 # *DOCUMENTATION*
@@ -413,6 +413,95 @@ KBUILD_AFLAGS   := -D__ASSEMBLY__ $(call cc-option,-fno-PIE)
 KBUILD_AFLAGS_MODULE  := -DMODULE
 KBUILD_CFLAGS_MODULE  := -DMODULE
 KBUILD_LDFLAGS_MODULE := -T $(srctree)/scripts/module-common.lds
+
+#ifdef VENDOR_EDIT
+#Bin.Yan@Swdp.Android.BuildConfig, 2017/01/07, Add for kernel Build FLAGS
+KBUILD_CFLAGS +=   -DVENDOR_EDIT
+KBUILD_CPPFLAGS += -DVENDOR_EDIT
+CFLAGS_KERNEL +=   -DVENDOR_EDIT
+CFLAGS_MODULE +=   -DVENDOR_EDIT
+#Bin.Li@BSP.Fingerprint.Basic 2018/11/20 enable fastboot for gsi test
+#ifneq ($(filter release cta,$(OPPO_BUILD_TYPE)),)
+#  CFLAGS_KERNEL += -DDISABLE_FASTBOOT_CMDS=1
+#endif
+ifeq ($(OPPO_TARGET_DEVICE),MSM_16051)
+  CFLAGS_KERNEL += -DIS_PROJECT_16051
+endif
+ifeq ($(OPPO_TARGET_DEVICE),MSM_17011)
+  CFLAGS_KERNEL += -DIS_PROJECT_17011
+endif
+ifeq ($(OPPO_TARGET_DEVICE),MSM_16103)
+  CFLAGS_KERNEL += -DIS_PROJECT_16103
+endif
+ifeq ($(OPPO_TARGET_DEVICE),MSM_16118)
+  CFLAGS_KERNEL += -DIS_PROJECT_16118
+endif
+ifeq ($(OPPO_TARGET_DEVICE),MSM_17021)
+  CFLAGS_KERNEL += -DIS_PROJECT_17021
+endif
+
+#Hui.Fan@BSP.Kernel.Security, 2017-02-12
+#Obscure the cpu model number in confidential version
+ifeq ($(CONFIDENTIAL_VERSION),1)
+KBUILD_CFLAGS += -DCONFIG_CONFIDENTIAL_VERSION
+endif
+
+ifeq ($(SPECIAL_OPPO_CONFIG),1)
+KBUILD_CFLAGS += -DCONFIG_OPPO_SPECIAL_BUILD
+#Wen.Luo@Bsp.Kernel.Stability, 2018/12/05, Add for aging test, slub debug config
+OPPO_AGINGTEST := true
+endif
+
+ifneq ($(SPECIAL_OPPO_CONFIG),1)
+ifeq ($(filter release,$(OPPO_BUILD_TYPE)),)
+ifeq ($(filter cmcctest cmccfield allnetcttest allnetcmcctest allnetcmccfield,$(NET_BUILD_TYPE)),)
+KBUILD_CFLAGS += -DCONFIG_OPPO_DAILY_BUILD
+endif
+endif
+endif
+#endif /* VENDOR_EDIT */
+
+#ifdef VENDOR_EDIT
+#YongPeng.Yi@MultiMedia.Display.LCD.Stability, 2017/02/22, add for cmcc test bl level
+ifneq ($(filter cmccfield cmcctest allnetcmcctest allnetcmccfield allnetcttest allnetctfield,$(NET_BUILD_TYPE)),)
+KBUILD_CFLAGS += -DOPPO_CTTEST_FLAG
+endif
+#endif /* VENDOR_EDIT */
+
+ifeq ($(NET_BUILD_TYPE),cmcctest)
+KBUILD_CFLAGS += -DOPPO_CMCC_TEST
+endif
+ifeq ($(NET_BUILD_TYPE),cmccfield)
+KBUILD_CFLAGS += -DOPPO_CMCC_TEST
+endif
+ifeq ($(NET_BUILD_TYPE),cmcc)
+KBUILD_CFLAGS += -DOPPO_CMCC_MP
+endif
+ifeq ($(NET_BUILD_TYPE),cutest)
+KBUILD_CFLAGS += -DOPPO_CU_TEST
+endif
+ifeq ($(NET_BUILD_TYPE),cu)
+KBUILD_CFLAGS += -DOPPO_CU_CLIENT
+endif
+ifeq ($(NET_BUILD_TYPE),cmcctest_dm)
+KBUILD_CFLAGS += -DOPPO_CMCC_TEST
+endif
+ifeq ($(OPPO_BUILD_TYPE),cta)
+KBUILD_CFLAGS += -DOPPO_CTA_FLAG
+KBUILD_CPPFLAGS += -DOPPO_CTA_FLAG
+endif
+#endif /*VENDOR_EDIT*/
+#ifdef  VENDOR_EDIT
+#ye.zhang@Sensor.config,2016-09-09, add for CTSI support external storage or not
+$(info @@@@@@@@@@@ 111 OPPO_BUILD_CUSTOMIZE is $(OPPO_BUILD_CUSTOMIZE))
+ifneq ($(OPPO_BUILD_CUSTOMIZE),)
+$(info @@@@@@@@@@@ 222 OPPO_BUILD_CUSTOMIZE is $(OPPO_BUILD_CUSTOMIZE))
+KBUILD_CFLAGS += -DMOUNT_EXSTORAGE_IF
+KBUILD_CPPFLAGS += -DMOUNT_EXSTORAGE_IF
+CFLAGS_KERNEL += -DMOUNT_EXSTORAGE_IF
+CFLAGS_MODULE += -DMOUNT_EXSTORAGE_IF
+endif
+#endif//VENDOR_EDIT
 
 # Read KERNELRELEASE from include/config/kernel.release (if it exists)
 KERNELRELEASE = $(shell cat include/config/kernel.release 2> /dev/null)
@@ -1658,6 +1747,18 @@ ifneq ($(cmd_files),)
 endif
 
 endif	# skip-makefile
+
+# ifdef VENDOR_EDIT
+# Guoqiang.Jiang@PSW.MM.Display.LCD.Feature, 2018/10/12,
+# add for for mm customize version
+ifneq ($(OPPO_BUILD_CUSTOMIZE),)
+  $(info MM_CUSTOMIZE_TYPE is $(OPPO_BUILD_CUSTOMIZE))
+  KBUILD_CFLAGS += -DMM_CUSTOMIZE_TYPE
+  KBUILD_CPPFLAGS += -DMM_CUSTOMIZE_TYPE
+  CFLAGS_KERNEL += -DMM_CUSTOMIZE_TYPE
+  CFLAGS_MODULE += -DMM_CUSTOMIZE_TYPE
+endif
+# endif /*VENDOR_EDIT*/
 
 PHONY += FORCE
 FORCE:

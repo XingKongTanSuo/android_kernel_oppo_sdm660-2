@@ -61,7 +61,12 @@
 #define FALSE  0
 
 #define MAX_LANE_COUNT 4
+#ifndef VENDOR_EDIT
+/*Add by Zhengrong.Zhang@Camera 20160805 for csid reset timeout*/
 #define CSID_TIMEOUT msecs_to_jiffies(100)
+#else
+#define CSID_TIMEOUT msecs_to_jiffies(500)
+#endif
 
 #undef CDBG
 #define CDBG(fmt, args...) pr_debug(fmt, ##args)

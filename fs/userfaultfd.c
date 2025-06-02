@@ -760,10 +760,8 @@ static int userfaultfd_register(struct userfaultfd_ctx *ctx,
 
 	start = uffdio_register.range.start;
 	end = start + uffdio_register.range.len;
-
 	down_write(&mm->mmap_sem);
 	vma = find_vma_prev(mm, start, &prev);
-
 	ret = -ENOMEM;
 	if (!vma)
 		goto out_unlock;
@@ -906,7 +904,6 @@ static int userfaultfd_unregister(struct userfaultfd_ctx *ctx,
 
 	down_write(&mm->mmap_sem);
 	vma = find_vma_prev(mm, start, &prev);
-
 	ret = -ENOMEM;
 	if (!vma)
 		goto out_unlock;
@@ -1071,8 +1068,11 @@ static int userfaultfd_copy(struct userfaultfd_ctx *ctx,
 	if (uffdio_copy.mode & ~UFFDIO_COPY_MODE_DONTWAKE)
 		goto out;
 
-	ret = mcopy_atomic(ctx->mm, uffdio_copy.dst, uffdio_copy.src,
-			   uffdio_copy.len);
+	if (mmget_not_zero(ctx->mm)) {
+		ret = mcopy_atomic(ctx->mm, uffdio_copy.dst, uffdio_copy.src,
+				   uffdio_copy.len);
+		mmput(ctx->mm);
+	}
 	if (unlikely(put_user(ret, &user_uffdio_copy->copy)))
 		return -EFAULT;
 	if (ret < 0)
