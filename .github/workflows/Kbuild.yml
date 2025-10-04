@@ -8,11 +8,7 @@ on:
         description: 'OPPO_TARGET_DEVICE'
         required: true
         options:
-        - '16051'
-        - '16103'
-        - '16118'
-        - '17011'
-        - '17021'
+        - 'h7000'
 
 jobs:
   build:
@@ -69,7 +65,7 @@ jobs:
       - name: upload the logs
         uses: actions/upload-artifact@v4
         with:
-          name: android_kernel_oppo_sdm660_${{ github.event.inputs.device }}_${{ env.BUILD_TIME }}_kernel.log
+          name: android_kernel_sdm660_${{ github.event.inputs.device }}_${{ env.BUILD_TIME }}_kernel.log
           path: workdir/source/kernel.log
 
       - name: check the kernel file
@@ -100,7 +96,7 @@ jobs:
         if: env.CHECK_FILE_IS_OK == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: android_kernel_oppo_sdm660_${{ github.event.inputs.device }}_${{ env.BUILD_TIME }}_Image.gz-dtb
+          name: android_kernel_sdm660_${{ github.event.inputs.device }}_${{ env.BUILD_TIME }}_Image.gz-dtb
           path: workdir/SukiSU-Patch/Image.gz-dtb
 
       - name: Make Anykernel3
@@ -114,5 +110,5 @@ jobs:
         if: env.CHECK_FILE_IS_OK == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: AnyKernel3_oppo_sdm660_${{ github.event.inputs.device }}_${{ env.BUILD_TIME }}
+          name: AnyKernel3_sdm660_${{ github.event.inputs.device }}_${{ env.BUILD_TIME }}
           path: workdir/ak3/*

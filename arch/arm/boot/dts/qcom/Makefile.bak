@@ -1,4 +1,4 @@
-dtb-$(CONFIG_ARCH_SDM660) += sda660.dtb
+dtb-$(CONFIG_ARCH_SDM660) += sda660.dtb \
 
 ifeq ($(CONFIG_ARM64),y)
 always          := $(dtb-y)

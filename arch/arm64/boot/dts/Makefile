@@ -13,11 +13,7 @@
 #Fuchun.Liao@BSP.CHG.Basic 2017/01/19 modify for 16051/16103 dts
 #dts-dirs += qcom
 #else
-dts-dirs += 16051
-dts-dirs += 16103
-dts-dirs += 16118
-dts-dirs += 17011
-dts-dirs += 17021
+dts-dirs += h7000
 #endif
 # dts-dirs += rockchip
 # dts-dirs += sprd
